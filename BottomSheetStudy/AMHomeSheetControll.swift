@@ -12,16 +12,23 @@ import UIKit
 
 
 
-class AMHomeSheetControll: UIScrollView{
+class AMHomeSheetControll: UIView{
 
     
     weak var actionDelegate: AMHomeSheetControllDelegate?
+
+    
     
     
     required public init() {
         
         super.init(frame: .zero)
         self.backgroundColor = .brown
+        
+        self.layer.cornerRadius = 10
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        self.clipsToBounds = true
+        
         self.translatesAutoresizingMaskIntoConstraints = false
         
         let Tap = UITapGestureRecognizer(target: self, action: #selector(Scroll))
@@ -29,6 +36,10 @@ class AMHomeSheetControll: UIScrollView{
 
         
         self.addGestureRecognizer(Tap)
+        
+        
+        
+        
 
     }
     
