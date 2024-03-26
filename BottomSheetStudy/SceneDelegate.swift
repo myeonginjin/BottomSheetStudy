@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let window = UIWindow(windowScene: windowScene)
             
             // Set the initial ViewController to your ViewController class
-            window.rootViewController = ViewController() // 여기서 ViewController()는 당신의 ViewController 클래스의 인스턴스여야 합니다.
+            window.rootViewController = AMHomeViewController() // 여기서 ViewController()는 당신의 ViewController 클래스의 인스턴스여야 합니다.
             
             // Set the window and call makeKeyAndVisible to make it the key window and display it
             self.window = window
