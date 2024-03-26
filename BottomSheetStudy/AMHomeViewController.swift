@@ -18,12 +18,16 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         
         //중간 턱
         case normal
+        
+        //최대 축소
+        case minumum
     }
     
     
-    // Bottom Sheet과 safe Area Top 사이의 최소값을 지정하기 위한 프로퍼티
-    // 기본값은 30으로 지정
-    var sheetPanMinTopConstant: CGFloat = 30.0
+
+    
+    
+    
     // 드래그 하기 전에 Bottom Sheet의 top Constraint value를 저장하기 위한 프로퍼티
     private lazy var sheetPanStartingTopConstant: CGFloat = sheetPanMinTopConstant
     
@@ -34,8 +38,21 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     private var sheetControllTopConstraint: NSLayoutConstraint!
     
     
-    // 1 - 열린 BottomSheet의 기본 높이를 지정하기 위한 프로퍼티
-    var defaultHeight: CGFloat = 150
+    
+    // Bottom Sheet과 safe Area Top 사이의 최소값을 지정하기 위한 프로퍼티
+    // 기본값은 30으로 지정
+    // 이 값이 최대 확장 시 화면 상단으로부터의 마진 값을 정해줌
+    var sheetPanMinTopConstant: CGFloat = 20.0
+    
+    
+    
+    // 열린 BottomSheet의 기본 높이를 지정하기 위한 프로퍼티
+    // 이 값은 중간 크기 상황의 시트의 화면 상단으로부터의 마진 값을 정해줌
+    var defaultHeight: CGFloat = 500
+    
+    // Bottom Sheet과 safe Area Bottom 사이의 최소값을 지정하기 위한 프로퍼티
+    // 이 값이 시트 최소 축소 시 화면 하단으로부터의 마진 값을 정해줌
+    var sheetPanMinBottomConstant: CGFloat = 100.0
     
     
     override func viewDidLoad() {
@@ -43,14 +60,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         
         self.view.backgroundColor = .gray
         
-        // Pan Gesture Recognizer를 view controller의 view에 추가하기 위한 코드
-        let viewPan = UIPanGestureRecognizer(target: self, action: #selector(viewPanned(_:)))
-        
-        // 기본적으로 iOS는 터치가 드래그하였을 때 딜레이가 발생함
-        // 우리는 드래그 제스쳐가 바로 발생하길 원하기 때문에 딜레이가 없도록 아래와 같이 설정
-        viewPan.delaysTouchesBegan = false
-        viewPan.delaysTouchesEnded = false
-        view.addGestureRecognizer(viewPan)
+
         
         
         setTestBtn()
@@ -62,7 +72,24 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         
         
         guard let sheetControll = sheetControll else{return}
+        
+        
+        // Pan Gesture Recognizer를 view controller의 view에 추가하기 위한 코드
+        let viewPan = UIPanGestureRecognizer(target: self, action: #selector(viewPanned(_:)))
+        
+        // 기본적으로 iOS는 터치가 드래그하였을 때 딜레이가 발생함
+        // 우리는 드래그 제스쳐가 바로 발생하길 원하기 때문에 딜레이가 없도록 아래와 같이 설정
+        viewPan.delaysTouchesBegan = false
+        viewPan.delaysTouchesEnded = false
+        
+        //바텀시트 영역에만 제스처 인식 기능을 추가한다. 바텀시트 영역을 제외한 부분 제스처는 인식되지않아야해서
+        sheetControll.addGestureRecognizer(viewPan)
+        
+        
+        
+        
         self.view.addSubview(sheetControll)
+        
         
         
         
@@ -95,15 +122,27 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     //뷰컨의 view가 나타날때 showBottomSheet 실행해서 바텀시트 올라오도록하기
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        showBottomSheet()
+        showBottomSheet(atState: .minumum)
     }
     
-    private func showBottomSheet() {
-        let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
-        let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-        
-        //바텀시트 높이 재설정
-        sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+    
+    
+    private func showBottomSheet(atState: SheetViewState) {
+        if atState == .normal {
+            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
+            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            
+            //최대 확장 상태
+        } else if atState == .expanded{
+            sheetControllTopConstraint.constant = sheetPanMinTopConstant
+        } else {
+            //최소 확장상태
+            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
+            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+            
+            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
+        }
         
         //UIView.animate 메소드의 animations에 closure를 전달
         UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
@@ -137,9 +176,12 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     // 해당 메소드는 사용자가 view를 드래그하면 실행됨
     @objc private func viewPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
         
-        
+        let velocity = panGestureRecognizer.velocity(in: view)
         
         let translation = panGestureRecognizer.translation(in: self.view)
+        
+        
+        print(translation)
         
         switch panGestureRecognizer.state {
         case .began:
@@ -148,13 +190,55 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
             if sheetPanStartingTopConstant + translation.y > sheetPanMinTopConstant {
                 sheetControllTopConstraint.constant = sheetPanStartingTopConstant + translation.y
             }
+            
+            
         case .ended:
+            
+            //빠르게 스크롤시 최소 크기
+            if velocity.y > 2000 {
+                showBottomSheet(atState: .minumum)
+                return
+            }
+            
+            
+            let safeAreaHeight = view.safeAreaLayoutGuide.layoutFrame.height
+            let bottomPadding = view.safeAreaInsets.bottom
+            // 1
+            let defaultPadding = safeAreaHeight+bottomPadding - defaultHeight
+            
+            // 2
+            let nearestValue = nearest(to: sheetControllTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
+            
+            if nearestValue == sheetPanMinTopConstant {
+                print("Bottom Sheet을 Expanded 상태로 변경")
+                showBottomSheet(atState: .expanded)
+            } else if nearestValue == defaultPadding {
+                // Bottom Sheet을 .normal 상태로 보여주기
+                showBottomSheet(atState: .normal)
+            } else {
+                // Bottom Sheet을 숨기고 현재 View Controller를 dismiss시키기
+//                hideBottomSheetAndGoBack()
+                
+                
+                //최소 크기로 축소
+                showBottomSheet(atState: .minumum)
+            }
+            
             print("드래그가 끝남")
         default:
             break
         }
         print("유저가 위아래로 \(translation.y)만큼 드래그.")
     }
+    
+    
+    //주어진 CGFloat 배열의 값 중 number로 주어진 값과 가까운 값을 찾아내는 메소드
+    func nearest(to number: CGFloat, inValues values: [CGFloat]) -> CGFloat {
+        guard let nearestVal = values.min(by: { abs(number - $0) < abs(number - $1) })
+        else { return number }
+        return nearestVal
+    }
+    
     
     @objc func buttonTapped() {
         print("btn Tapped")
