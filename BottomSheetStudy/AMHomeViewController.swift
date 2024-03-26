@@ -20,7 +20,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         case normal
         
         //최대 축소
-        case minumum
+        case minimum
     }
     
     
@@ -35,7 +35,11 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     
     var testBtn: UIButton?
     var sheetControll: AMHomeSheetControll?
+    var contentSheetItemView: AMHomeContentSheetItemView?
+    
     private var sheetControllTopConstraint: NSLayoutConstraint!
+    
+    
     
     
     
@@ -70,8 +74,10 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         sheetControll = AMHomeSheetControll()
         sheetControll?.actionDelegate = self
         
+        contentSheetItemView = AMHomeContentSheetItemView()
         
         guard let sheetControll = sheetControll else{return}
+        guard let contentSheetItemView = contentSheetItemView else{return}
         
         
         // Pan Gesture Recognizer를 view controller의 view에 추가하기 위한 코드
@@ -86,8 +92,8 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         sheetControll.addGestureRecognizer(viewPan)
         
         
-        
-        
+        //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
+        sheetControll.addSubview(contentSheetItemView)
         self.view.addSubview(sheetControll)
         
         
@@ -115,6 +121,12 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
             sheetControll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             sheetControllTopConstraint,
             
+            
+            contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.topAnchor),
+            contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
+            contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
+            contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
         ])
         
     }
@@ -122,7 +134,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     //뷰컨의 view가 나타날때 showBottomSheet 실행해서 바텀시트 올라오도록하기
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        showBottomSheet(atState: .minumum)
+        showBottomSheet(atState: .minimum)
     }
     
     
@@ -196,7 +208,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
             
             //빠르게 스크롤시 최소 크기
             if velocity.y > 2000 {
-                showBottomSheet(atState: .minumum)
+                showBottomSheet(atState: .minimum)
                 return
             }
             
@@ -221,7 +233,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
                 
                 
                 //최소 크기로 축소
-                showBottomSheet(atState: .minumum)
+                showBottomSheet(atState: .minimum)
             }
             
             print("드래그가 끝남")
