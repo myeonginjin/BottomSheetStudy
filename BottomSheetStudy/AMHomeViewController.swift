@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
+class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UIScrollViewDelegate {
     
     
     //바텀시트 상태 지정하기 위한 열거형 데이터
@@ -19,7 +19,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         //중간 턱
         case normal
         
-        //최대 축소
+        //최대 축소 현재 (기획의도x)
         case minimum
     }
     
@@ -89,11 +89,16 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         viewPan.delaysTouchesEnded = false
         
         //바텀시트 영역에만 제스처 인식 기능을 추가한다. 바텀시트 영역을 제외한 부분 제스처는 인식되지않아야해서
-        sheetControll.addGestureRecognizer(viewPan)
+        // !!!! 우선 드래그인디케이터 뷰만 제스처 인식 가능하도록 변경 !!!
+        sheetControll.dragIndicatorView.addGestureRecognizer(viewPan)
+        
+
+        //스크롤 뷰 제스처 인식하기 위해서 AMHomeViewController 대리자로 위임
+        contentSheetItemView.delegate = self
         
         
         //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
-//        sheetControll.addSubview(contentSheetItemView)
+        sheetControll.addSubview(contentSheetItemView)
         self.view.addSubview(sheetControll)
         
         
@@ -122,10 +127,10 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
             sheetControllTopConstraint,
             
             
-//            contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.topAnchor),
-//            contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
-//            contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
-//            contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.dragIndicatorView.bottomAnchor),
+            contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
+            contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
+            contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
         ])
         
@@ -149,11 +154,18 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         } else if atState == .expanded{
             sheetControllTopConstraint.constant = sheetPanMinTopConstant
         } else {
-            //최소 확장상태
+            
+            //최소 확장상태 우선 제외
             let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
             
-            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
+            
+            //최소 확장상태
+//            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
+//            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+//            
+//            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
         }
         
         //UIView.animate 메소드의 animations에 closure를 전달
@@ -208,7 +220,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
             
             //빠르게 스크롤시 최소 크기
             if velocity.y > 2000 {
-                showBottomSheet(atState: .minimum)
+                showBottomSheet(atState: .normal)
                 return
             }
             
@@ -232,8 +244,10 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
 //                hideBottomSheetAndGoBack()
                 
                 
-                //최소 크기로 축소
-                showBottomSheet(atState: .minimum)
+                //최소 크기로 축소 (현재 제외)
+                //showBottomSheet(atState: .minimum)
+                
+                showBottomSheet(atState: .normal)
             }
             
             print("드래그가 끝남")
@@ -261,4 +275,28 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     func didScroll() {
         print("did Scoll !!")
     }
+    
+    
+    //contentSheetItem 스크롤 인식하는 메소드
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // 스크롤 뷰의 contentOffset이 0이고, 사용자가 아래로 스크롤할 때
+        // 바텀 시트 상태를 .normal로 변경
+        
+        //스크롤뷰 안 내용이 최상단에 위치해있을 떄 (스크롤이 더이상 아래로 안되는 상황)
+        if scrollView.contentOffset.y <= 0 {
+            
+            
+            // 유저의 스크롤이 위에서 아래로 향함
+            if scrollView.panGestureRecognizer.translation(in: scrollView).y > 0 {
+                
+                //시트가 최대확장되어있는 상황이라면
+                if sheetControllTopConstraint.constant == sheetPanMinTopConstant {
+                    // 현재 바텀 시트를 normal상태로 변경
+                    showBottomSheet(atState: .normal)
+                }
+            }
+        }
+    }
+    
 }
+

@@ -8,16 +8,16 @@
 import Foundation
 import UIKit
 
-public class AMHomeContentSheetItemView: UIScrollView {
+public class AMHomeContentSheetItemView: UIScrollView  {
+
+    
+        
     
     required public init() {
         
         super.init(frame: .zero)
         self.backgroundColor = .white
         
-        self.layer.cornerRadius = 10
-        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        self.clipsToBounds = true
         
         self.translatesAutoresizingMaskIntoConstraints = false
 
@@ -44,13 +44,13 @@ public class AMHomeContentSheetItemView: UIScrollView {
         
         // 스택 뷰의 높이가 스크롤 뷰의 가시 영역을 초과할 수 있도록 임의의 높이 제약 조건 추가
         // 이는 스택 뷰 내의 버튼이 충분히 많을 경우 스크롤이 작동하도록 보장합니다.
-//        let stackViewHeightConstraint = stackView.heightAnchor.constraint(equalTo: self.heightAnchor)
-//        stackViewHeightConstraint.priority = .defaultLow // 중요도를 낮춰서 스택 뷰가 내용에 따라 늘어날 수 있도록 함
-//        stackViewHeightConstraint.isActive = true
-//        
+        let stackViewHeightConstraint = stackView.heightAnchor.constraint(equalTo: self.heightAnchor)
+        stackViewHeightConstraint.priority = .defaultLow // 중요도를 낮춰서 스택 뷰가 내용에 따라 늘어날 수 있도록 함
+        stackViewHeightConstraint.isActive = true
+        
         
         // 버튼 생성 및 스택 뷰에 추가
-        for i in 0..<8 {
+        for i in 0..<7 {
             let button = UIButton(type: .system)
             button.setTitle("Button \(i+1)", for: .normal)
             button.backgroundColor = .systemBlue
@@ -75,5 +75,7 @@ public class AMHomeContentSheetItemView: UIScrollView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
 
+    
 }
