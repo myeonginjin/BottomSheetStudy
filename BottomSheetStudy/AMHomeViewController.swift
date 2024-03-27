@@ -52,7 +52,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
     
     // 열린 BottomSheet의 기본 높이를 지정하기 위한 프로퍼티
     // 이 값은 중간 크기 상황의 시트의 화면 상단으로부터의 마진 값을 정해줌
-    var defaultHeight: CGFloat = 500
+    var defaultHeight: CGFloat = 450
     
     // Bottom Sheet과 safe Area Bottom 사이의 최소값을 지정하기 위한 프로퍼티
     // 이 값이 시트 최소 축소 시 화면 하단으로부터의 마진 값을 정해줌
@@ -93,7 +93,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
         
         
         //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
-        sheetControll.addSubview(contentSheetItemView)
+//        sheetControll.addSubview(contentSheetItemView)
         self.view.addSubview(sheetControll)
         
         
@@ -122,10 +122,10 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate {
             sheetControllTopConstraint,
             
             
-            contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.topAnchor),
-            contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
-            contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
-            contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+//            contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.topAnchor),
+//            contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
+//            contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
+//            contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
         ])
         
