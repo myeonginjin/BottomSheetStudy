@@ -25,7 +25,9 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     
     
 
-    
+    // 현재 바텀 시트의 상태를 추적하기 위한 변수 추가
+    var currentSheetState: SheetViewState = .normal
+
     
 
     // 드래그 하기 전에 Bottom Sheet의 top Constraint value를 저장하기 위한 프로퍼티
@@ -43,6 +45,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     // 오프셋 0일떄 컨텐츠 스크롤이 아닌 시트가 내려가도록 (제스처가 viewPanned2로 가도록) 확장 여부 저장하는 변수
     var isExpanded = false
     
+
     
     
     // Bottom Sheet과 safe Area Top 사이의 최소값을 지정하기 위한 프로퍼티
@@ -155,12 +158,16 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     //뷰컨의 view가 나타날때 showBottomSheet 실행해서 바텀시트 올라오도록하기
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        showBottomSheet(atState: .minimum)
+        showBottomSheet(atState: .normal)
     }
     
     
     
     private func showBottomSheet(atState: SheetViewState) {
+        
+        //현제 바텀시트 상태 푸적
+        currentSheetState = atState
+        
         if atState == .normal {
             let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding: CGFloat = view.safeAreaInsets.bottom
@@ -227,6 +234,9 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     // 해당 메소드는 사용자가 view를 드래그하면 실행됨
     @objc private func viewPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
         
+
+        
+        
         let velocity = panGestureRecognizer.velocity(in: view)
         
         let translation = panGestureRecognizer.translation(in: self.view)
@@ -236,8 +246,18 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
         
         switch panGestureRecognizer.state {
         case .began:
+            
+            
             sheetPanStartingTopConstant = sheetControllTopConstraint.constant
         case .changed:
+            
+            if currentSheetState == .normal && translation.y > 0 {
+                
+                
+                // 노말 상테에서 아래로 드래그하는 동작 무시
+                return
+            }
+            
             if sheetPanStartingTopConstant + translation.y > sheetPanMinTopConstant {
                 sheetControllTopConstraint.constant = sheetPanStartingTopConstant + translation.y
             }
