@@ -8,9 +8,14 @@
 import Foundation
 import UIKit
 
-public class AMHomeContentSheetItemView: UIScrollView  {
-
+public class AMHomeContentSheetItemView: UIScrollView,  UIGestureRecognizerDelegate {
     
+    
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
         
     
     required public init() {
@@ -20,7 +25,9 @@ public class AMHomeContentSheetItemView: UIScrollView  {
         
         
         self.translatesAutoresizingMaskIntoConstraints = false
-
+            
+        
+        self.bounces = false
         
         // 스크롤 뷰 내에 버튼들을 담을 스택 뷰 생성
         let stackView = UIStackView()
@@ -50,7 +57,7 @@ public class AMHomeContentSheetItemView: UIScrollView  {
         
         
         // 버튼 생성 및 스택 뷰에 추가
-        for i in 0..<7 {
+        for i in 0..<20 {
             let button = UIButton(type: .system)
             button.setTitle("Button \(i+1)", for: .normal)
             button.backgroundColor = .systemBlue
