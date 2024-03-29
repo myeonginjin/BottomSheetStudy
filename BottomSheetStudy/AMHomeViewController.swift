@@ -8,8 +8,7 @@
 import UIKit
 
 class AMHomeViewController: UIViewController,
-                            UIScrollViewDelegate,
-                            AMHomeSheetControllDelegate {
+                            UIScrollViewDelegate {
     
     
     //바텀시트 상태 지정하기 위한 열거형 데이터
@@ -86,11 +85,9 @@ class AMHomeViewController: UIViewController,
         guard let testBtn = testBtn else { return }
         self.view.addSubview(testBtn)
         
-        sheetControll = AMHomeSheetControl()
+        sheetControll = AMHomeSheetControl(frame: .zero)
         
-        
-        //바텀시트 뷰 관리를 AMHomeViewController에게 위임
-        sheetControll?.actionDelegate = self
+
         
         contentSheetItemView = AMHomeContentSheetItemView()
         
