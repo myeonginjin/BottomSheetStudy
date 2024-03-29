@@ -89,7 +89,7 @@ class AMHomeViewController: UIViewController,
         
 
         
-        contentSheetItemView = AMHomeContentSheetItemView()
+        contentSheetItemView = AMHomeContentSheetItemView(frame: .zero)
         
         guard let sheetControll = sheetControll else{ return }
         guard let contentSheetItemView = contentSheetItemView else{ return }
