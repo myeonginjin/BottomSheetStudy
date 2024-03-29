@@ -9,18 +9,20 @@ import Foundation
 import UIKit
 
 //바텀시트 영역 내 컨텐트를 보여줄 스크롤뷰
-public class AMHomeContentSheetItemView: UIScrollView,  UIGestureRecognizerDelegate {
+public class AMHomeContentSheetItemView: UIScrollView,
+                                         UIGestureRecognizerDelegate {
     
     
     //UIScrollView 내부에서 발생하는 제스처 인식자와 다른 제스처 인식자가 동시에 인식될수 있도록 함. 현 프로젝트에서는 바텀시트 크기를 변경하기 위한 제스처리코그나이저의 제스처 인식도 허용되도록 선언
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    open func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                                  shouldRecognizeSimultaneouslyWith
+                                  otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
         
     //클래스의 뷰 인스턴스를 프로그래매틱하게 생성할 때 사용하는 초기화
-    
     required public init() {
+        
         
         //오토레이아웃으로 후에 크기, 위치 선언할 것아기에 우선 초기 위치 크기 지정x
         super.init(frame: .zero)
@@ -89,8 +91,10 @@ public class AMHomeContentSheetItemView: UIScrollView,  UIGestureRecognizerDeleg
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-
-    
+        
 }
+
+
+
+
+

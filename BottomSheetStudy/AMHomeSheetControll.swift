@@ -8,27 +8,18 @@
 import Foundation
 import UIKit
 
-enum SheetConstraint: CGFloat{
-    case minTopConstant = 20.0
-    case defaulTopConstant = 450.0
-    case minBottomConstant = 100.0
-}
+
 
 
 // 커스텀 바텀시트
-class AMHomeSheetControll: UIView{
+class AMHomeSheetControl: UIView{
 
     
     //해당 프로토콜은 didScroll 메소드를 구현하도록(채택하도록) 요구하는 프로토콜. 준수해야할 클래스 타입은 AnyObject(어느 객체든 가능),
     // didScroll 메소드는 AMHomeSheetControll객체가 UITapGestureRecognizer에 의해 클릭이 감지됐을 때 호출되는 handleTapGesture메소드에 의해 호출.
     weak var actionDelegate: AMHomeSheetControllDelegate?
     
-    
-    //최대 확장, 기본 크기, 최소 확장을 만들어줄 오토레이아웃 마진값 변수들
-    var minTopConstant: SheetConstraint = .minTopConstant
-    var defaulTopConstant: SheetConstraint = .defaulTopConstant
-    var minBottomConstant: SheetConstraint = .minBottomConstant
-    
+        
     
     // 바텀시트를 무조건적으로 올렷다 내렷다 할 수 있는 영역의 뷰
     let dragIndicatorView: UIView = {
@@ -108,6 +99,8 @@ class AMHomeSheetControll: UIView{
         //델리게이트의 didScroll메서드를 호출하도록 구현
         actionDelegate?.didScroll()
     }
+    
+    
     
 }
 

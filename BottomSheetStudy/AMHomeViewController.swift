@@ -7,7 +7,9 @@
 
 import UIKit
 
-class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UIScrollViewDelegate {
+class AMHomeViewController: UIViewController,
+                            UIScrollViewDelegate,
+                            AMHomeSheetControllDelegate {
     
     
     //바텀시트 상태 지정하기 위한 열거형 데이터
@@ -33,14 +35,12 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     // 드래그 시작 점에서(화면터치) Bottom Sheet의 현재 top Constraint value를 저장하기 위한 프로퍼티
     private lazy var sheetPanStartingTopConstant: CGFloat = sheetPanMinTopConstant
     
-    
     //뷰컨트롤러 view에 붙어있을 버튼
     var testBtn: UIButton?
     //바텀시트
-    var sheetControll: AMHomeSheetControll?
+    var sheetControll: AMHomeSheetControl?
     //바텀시트 안 내용물(content) 뷰
     var contentSheetItemView: AMHomeContentSheetItemView?
-    
     
     //바텀시트의 크기를 동적으로(제스처에 따라 변화도록) 변하시키기 위해 상단 제약조건을 따로 변수로 선언
     private var sheetControllTopConstraint: NSLayoutConstraint!
@@ -72,20 +72,21 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
         
         self.view.backgroundColor = .gray
         
+
         
         //시트 확장, 기본, 최소 상태일 때 시트뷰 탑 제약조건 지정해줌
-        sheetPanMinTopConstant = sheetControll?.minTopConstant.rawValue ?? 20.0
+        sheetPanMinTopConstant = 80.0
         
-        defaultHeight = sheetControll?.defaulTopConstant.rawValue ?? 450.0
+        defaultHeight = 450.0
         
-        sheetPanMinBottomConstant = sheetControll?.minBottomConstant.rawValue ?? 100.0
+        sheetPanMinBottomConstant = 100.0
         
         
         setTestBtn()
-        guard let testBtn = testBtn else {return}
+        guard let testBtn = testBtn else { return }
         self.view.addSubview(testBtn)
         
-        sheetControll = AMHomeSheetControll()
+        sheetControll = AMHomeSheetControl()
         
         
         //바텀시트 뷰 관리를 AMHomeViewController에게 위임
@@ -93,12 +94,12 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
         
         contentSheetItemView = AMHomeContentSheetItemView()
         
-        guard let sheetControll = sheetControll else{return}
-        guard let contentSheetItemView = contentSheetItemView else{return}
+        guard let sheetControll = sheetControll else{ return }
+        guard let contentSheetItemView = contentSheetItemView else{ return }
         
         
         // Pan Gesture Recognizer를 view controller의 view에 추가하기 위한 코드
-        let viewPan = UIPanGestureRecognizer(target: self, action: #selector(viewPanned(_:)))
+        let viewPan = UIPanGestureRecognizer(target: self, action: #selector(handleBarPanned(_:)))
         
         // 기본적으로 iOS는 터치가 드래그하였을 때 딜레이가 발생함
         // 우리는 드래그 제스쳐가 바로 발생하길 원하기 때문에 딜레이가 없도록 아래와 같이 설정
@@ -113,7 +114,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
         
         
         //스크롤뷰 오프셋이 0인 경우 아래로 스크롤할 시 시트뷰가 노멀 사이즈로 바뀌도록 하기 위해 컨텐트 시트 아이템뷰에도 제스처 리코그나이저 붙여놓음
-        let viewPan2 = UIPanGestureRecognizer(target: self, action: #selector(viewPanned2(_:)))
+        let viewPan2 = UIPanGestureRecognizer(target: self, action: #selector(contentViewPanned(_:)))
         
         // 기본적으로 iOS는 터치가 드래그하였을 때 딜레이가 발생함
         // 우리는 드래그 제스쳐가 바로 발생하길 원하기 때문에 딜레이가 없도록 아래와 같이 설정
@@ -246,7 +247,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     }
     
     // 해당 메소드는 사용자가 view를 드래그하면 실행됨
-    @objc private func viewPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
+    @objc private func handleBarPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
         
 
         //제스처의 속도 측정
@@ -346,10 +347,10 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     // 해당 메소드는 사용자가 view를 드래그하면 실행됨
     // 이 메소느는 UIScrollView인 AMHomeContentSheetItemView에 붙어있는 UIPanGestureRecognizer에 의해 호출됨
     // 오프셋이 0인경우 스크롤뷰를 아래로 내릴 시 시트가 내려가지도록 하기 위해서 구현함
-    @objc private func viewPanned2(_ panGestureRecognizer: UIPanGestureRecognizer) {
+    @objc private func contentViewPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
 
         // 스크롤뷰의 오프셋이 0인 상황(컨텐트가 아래로 조금도 내려가있지않는 상태)에서 최대 확장시에만 시트 변화를 야기시키는 viewPanned2매소드를 진행시켜야함
-        if(contentSheetItemView!.contentOffset.y <= 0 && isExpanded){
+        if (contentSheetItemView!.contentOffset.y <= 0 && isExpanded) {
             
             print("that's it")
         }
@@ -429,7 +430,7 @@ class AMHomeViewController: UIViewController,  AMHomeSheetControllDelegate, UISc
     
     //주어진 CGFloat 배열의 값 중 number로 주어진 값과 가까운 값을 찾아내는 메소드
     //배열을 순회화면서, 2개의 원소를 순차적으로 비교하면서 number와 차이가 가장 적은 원소가 계속해서 비교군이된다. 차이가 같은 원소가 있을 경우 인덱스가 더 낮은 원소가 선정된다.
-    func nearest(to number: CGFloat, inValues values: [CGFloat])->CGFloat {
+    func nearest(to number: CGFloat, inValues values: [CGFloat]) -> CGFloat {
         guard let nearestVal = values.min(by: { abs(number - $0) < abs(number - $1) })
         else { return number }
         return nearestVal
