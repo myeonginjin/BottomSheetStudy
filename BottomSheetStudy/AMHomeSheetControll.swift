@@ -95,6 +95,18 @@ class AMHomeSheetControl: UIView{
                handleBar.widthAnchor.constraint(equalToConstant: 60)
         ]
     }
+    
+    open func sheetPanMinTopConstant() -> CGFloat {
+        return 80.0
+    }
+    
+    open func defaultHeight() -> CGFloat {
+        return 450.0
+    }
+    
+    open func sheetPanMinBottomConstant() -> CGFloat {
+        return 100.0
+    }
 }
 
 
