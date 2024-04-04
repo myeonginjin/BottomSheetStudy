@@ -16,7 +16,6 @@ class AMHomeSheetControl: UIView{
     // dragIndicatorView 영역을 인지할 수 있도록 해주는 손잡이 부분
     var handleBar = UIView()
     
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -96,15 +95,15 @@ class AMHomeSheetControl: UIView{
         ]
     }
     
-    open func sheetPanMinTopConstant() -> CGFloat {
+    func sheetPanMinTopConstant() -> CGFloat {
         return 80.0
     }
     
-    open func defaultHeight() -> CGFloat {
+    func defaultHeight() -> CGFloat {
         return 450.0
     }
     
-    open func sheetPanMinBottomConstant() -> CGFloat {
+    func sheetPanMinBottomConstant() -> CGFloat {
         return 100.0
     }
 }

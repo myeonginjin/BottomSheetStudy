@@ -32,7 +32,7 @@ class AMHomeViewController: UIViewController,
     private lazy var sheetPanStartingTopConstant: CGFloat = sheetPanMinTopConstant
     
     //바텀시트의 크기를 동적으로(제스처에 따라 변화도록) 변하시키기 위해 상단 제약조건을 따로 변수로 선언
-    private var sheetControllTopConstraint: NSLayoutConstraint!
+    private var sheetControlTopConstraint: NSLayoutConstraint!
     
     //뷰컨트롤러 view에 붙어있을 버튼
     var testBtn = UIButton()
@@ -86,14 +86,14 @@ class AMHomeViewController: UIViewController,
         if atState == .normal {
             let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
             
             //확장 상태가 아님
             isExpanded = false
             
             //최대 확장 상태
         } else if atState == .expanded{
-            sheetControllTopConstraint.constant = sheetPanMinTopConstant
+            sheetControlTopConstraint.constant = sheetPanMinTopConstant
             
             //최대 확장 상태임 (스크롤뷰 오프셋이 0일 때 아래로 제스처 시 시트가 내려갈 수 있도록 하기 위해 해당 변수 사용
             isExpanded = true
@@ -103,13 +103,13 @@ class AMHomeViewController: UIViewController,
             //최소 확장상태 우선 제외
             let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
             
             //최소 확장상태 만들어 주는 로직 (viewPanned메소드에 노말상태에서 아래로 제스처 시 return 시키는 부분도 제거해야 적용됨)
             //            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             //            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
             //
-            //            sheetControllTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
+            //            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
         }
         
         //UIView.animate 메소드의 animations에 closure를 전달
@@ -159,7 +159,7 @@ class AMHomeViewController: UIViewController,
         //바텀시트 초기 높이값 설정 화면 밖 최하단 밑으로 설정
         // 후에 디폴트 값인 화면 중단쯤으로 조정될 때 밑에서 부터 올라오는 효과를 부여해줄 수 있음
         let topConstant = view.safeAreaInsets.bottom + view.safeAreaLayoutGuide.layoutFrame.height
-        sheetControllTopConstraint = sheetControll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topConstant)
+        sheetControlTopConstraint = sheetControll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topConstant)
         
         //시트 확장, 기본, 최소 상태일 때 시트뷰 탑 제약조건 지정해줌
         sheetPanMinTopConstant = sheetControll.sheetPanMinTopConstant()
@@ -206,7 +206,7 @@ class AMHomeViewController: UIViewController,
         return [sheetControll.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
                 sheetControll.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
                 sheetControll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                sheetControllTopConstraint]
+                sheetControlTopConstraint]
     }
     func contentSheetItemViewConstraints() -> [NSLayoutConstraint]? {
         return [contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.dragIndicatorView.bottomAnchor),
@@ -231,7 +231,7 @@ class AMHomeViewController: UIViewController,
         case .began:
             
             //현재 화면 상단으로부터의 바텀시트 top 제약조건 저장해놓음
-            sheetPanStartingTopConstant = sheetControllTopConstraint.constant
+            sheetPanStartingTopConstant = sheetControlTopConstraint.constant
             
         // 드래그가 진행 중 (터치되어 있는 상태에서 손가락의 위치가 이동하고 있음)
         case .changed:
@@ -247,7 +247,7 @@ class AMHomeViewController: UIViewController,
             // sheetPanStartingTopConstant의 값은 한번의 제스처 동안에는 그 값이  변하지않음
             if sheetPanStartingTopConstant + translation.y >
                 sheetPanMinTopConstant {
-                sheetControllTopConstraint.constant = sheetPanStartingTopConstant + translation.y
+                sheetControlTopConstraint.constant = sheetPanStartingTopConstant + translation.y
             }
             
             //드래그가 종료됨. 제스처 이후 화면에서 손가락이 떼졌음
@@ -268,8 +268,8 @@ class AMHomeViewController: UIViewController,
             //핸드폰 화면에서 앱의 화면이 차지할 수 있는 전체 영역에서 바텀시트의 화면상단으로부터의 기본 마진값을 뺌
             let defaultPadding = safeAreaHeight+bottomPadding - defaultHeight
             
-            //제스처를 통해 새로 지정된 좌표값이 담긴 sheetControllTopConstraint.constant가 바텀시트 최대 확장 시 위치, 기본값 위치, 핸드폰 최하단 위치 이 세 지점에서 어디에 가장 근접한지 구함
-            let nearestValue = nearest(to: sheetControllTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
+            //제스처를 통해 새로 지정된 좌표값이 담긴 sheetControlTopConstraint.constant가 바텀시트 최대 확장 시 위치, 기본값 위치, 핸드폰 최하단 위치 이 세 지점에서 어디에 가장 근접한지 구함
+            let nearestValue = nearest(to: sheetControlTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
             
             //최대확장 지점에 가장 가까울 시
             if nearestValue == sheetPanMinTopConstant {
@@ -324,10 +324,10 @@ class AMHomeViewController: UIViewController,
         
         switch panGestureRecognizer.state {
         case .began:
-            sheetPanStartingTopConstant = sheetControllTopConstraint.constant
+            sheetPanStartingTopConstant = sheetControlTopConstraint.constant
         case .changed:
             if sheetPanStartingTopConstant + translation.y > sheetPanMinTopConstant {
-                sheetControllTopConstraint.constant = sheetPanStartingTopConstant + translation.y
+                sheetControlTopConstraint.constant = sheetPanStartingTopConstant + translation.y
             }
             
         case .ended:
@@ -340,7 +340,7 @@ class AMHomeViewController: UIViewController,
             let safeAreaHeight = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding = view.safeAreaInsets.bottom
             let defaultPadding = safeAreaHeight+bottomPadding - defaultHeight
-            let nearestValue = nearest(to: sheetControllTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
+            let nearestValue = nearest(to: sheetControlTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
             
             if nearestValue == sheetPanMinTopConstant {
                 print(" 2 Bottom Sheet을 Expanded 상태로 변경")
@@ -363,7 +363,6 @@ class AMHomeViewController: UIViewController,
         }
         print(" 2 유저가 위아래로 \(translation.y)만큼 드래그.")
     }
-    
     
     //주어진 CGFloat 배열의 값 중 number로 주어진 값과 가까운 값을 찾아내는 메소드
     //배열을 순회화면서, 2개의 원소를 순차적으로 비교하면서 number와 차이가 가장 적은 원소가 계속해서 비교군이된다. 차이가 같은 원소가 있을 경우 인덱스가 더 낮은 원소가 선정된다.
