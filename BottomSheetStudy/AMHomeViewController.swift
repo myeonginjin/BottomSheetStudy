@@ -141,9 +141,9 @@ class AMHomeViewController: UIViewController,
         testBtn.setImage(UIImage(systemName: "plus.circle", withConfiguration: largeConfig), for: .normal)
         testBtn.translatesAutoresizingMaskIntoConstraints = false
         testBtn.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        self.testBtn = testBtn
         
         self.view.addSubview(testBtn)
+        self.testBtn = testBtn
     }
     
     func initSheetControll() {
@@ -160,18 +160,17 @@ class AMHomeViewController: UIViewController,
         defaultHeight = sheetControll.defaultHeight()
         sheetPanMinBottomConstant = sheetControll.sheetPanMinBottomConstant()
         
-        self.sheetControll = sheetControll
-
         self.view.addSubview(sheetControll)
+        self.sheetControll = sheetControll
     }
     
     func initcontentSheetItemView() {
         guard let sheetControll = self.sheetControll else { return}
         let contentSheetItemView = AMHomeContentSheetItemView()
         
-        self.contentSheetItemView = contentSheetItemView
         //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
         sheetControll.addSubview(contentSheetItemView)
+        self.contentSheetItemView = contentSheetItemView
     }
     
     func registerPanGestures() {
