@@ -77,52 +77,6 @@ class AMHomeViewController: UIViewController,
         super.viewDidAppear(animated)
         showBottomSheet(atState: .normal)
     }
-
-    //바텀시트의 높이를 최대확장, 디폴트, 최대축소로 변경하는 메서드
-    private func showBottomSheet(atState: SheetViewState) {
-        
-        //현제 바텀시트 상태 추적
-        currentSheetState = atState
-        
-        // 화면 중단에 걸쳐져 있는 상태
-        if atState == .normal {
-            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
-            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
-            
-            //확장 상태가 아님
-            isExpanded = false
-            
-            //최대 확장 상태
-        } else if atState == .expanded{
-            sheetControlTopConstraint.constant = sheetPanMinTopConstant
-            
-            //최대 확장 상태임 (스크롤뷰 오프셋이 0일 때 아래로 제스처 시 시트가 내려갈 수 있도록 하기 위해 해당 변수 사용
-            isExpanded = true
-            
-        } else {
-            
-            //최소 확장상태 우선 제외
-            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
-            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
-            
-            //최소 확장상태 만들어 주는 로직 (viewPanned메소드에 노말상태에서 아래로 제스처 시 return 시키는 부분도 제거해야 적용됨)
-            //            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
-            //            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            //
-            //            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
-        }
-        
-        //UIView.animate 메소드의 animations에 closure를 전달
-        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
-            
-            //뷰컨의 뷰 딤드 처리
-            //            self.view.alpha = 0.7
-            // 바텀시트가 스무스하게 올라오도록 해줌
-            self.view.layoutIfNeeded()
-        }, completion: nil)
-    }
     
     func initViews() {
         
@@ -219,36 +173,53 @@ class AMHomeViewController: UIViewController,
         NSLayoutConstraint.activate(constraints)
     }
     
-    func testBtnConstraints() -> [NSLayoutConstraint]? {
+    // MARK: - CONTROL SHEET
+    //바텀시트의 높이를 최대확장, 디폴트, 최대축소로 변경하는 메서드
+    private func showBottomSheet(atState: SheetViewState) {
         
-        guard let testBtn = self.testBtn else { return nil }
+        //현제 바텀시트 상태 추적
+        currentSheetState = atState
         
-        return [testBtn.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
-                testBtn.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
-                testBtn.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
-                testBtn.heightAnchor.constraint(equalToConstant: 200)]
+        // 화면 중단에 걸쳐져 있는 상태
+        if atState == .normal {
+            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
+            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            
+            //확장 상태가 아님
+            isExpanded = false
+            
+            //최대 확장 상태
+        } else if atState == .expanded{
+            sheetControlTopConstraint.constant = sheetPanMinTopConstant
+            
+            //최대 확장 상태임 (스크롤뷰 오프셋이 0일 때 아래로 제스처 시 시트가 내려갈 수 있도록 하기 위해 해당 변수 사용
+            isExpanded = true
+            
+        } else {
+            
+            //최소 확장상태 우선 제외
+            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
+            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            
+            //최소 확장상태 만들어 주는 로직 (viewPanned메소드에 노말상태에서 아래로 제스처 시 return 시키는 부분도 제거해야 적용됨)
+            //            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
+            //            let bottomPadding: CGFloat = view.safeAreaInsets.bottom
+            //
+            //            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanMinBottomConstant
+        }
+        
+        //UIView.animate 메소드의 animations에 closure를 전달
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
+            
+            //뷰컨의 뷰 딤드 처리
+            //            self.view.alpha = 0.7
+            // 바텀시트가 스무스하게 올라오도록 해줌
+            self.view.layoutIfNeeded()
+        }, completion: nil)
     }
-    
-    func sheetControllConstraints() -> [NSLayoutConstraint]? {
-        
-        guard let sheetControll = self.sheetControll else { return nil }
-        
-        return [sheetControll.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-                sheetControll.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-                sheetControll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                sheetControlTopConstraint]
-    }
-    func contentSheetItemViewConstraints() -> [NSLayoutConstraint]? {
-        
-        guard let sheetControll = self.sheetControll else { return nil }
-        guard let contentSheetItemView = self.contentSheetItemView else { return nil }
-        
-        return [contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.dragIndicatorView.bottomAnchor),
-                contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
-                contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
-                contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor)]
-    }
-    
+
     // 해당 메소드는 사용자가 view를 드래그하면 실행됨
     @objc private func handleBarPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
         
@@ -432,6 +403,37 @@ class AMHomeViewController: UIViewController,
     
     @objc func buttonTapped(){
         print("test btn tapped")
+    }
+    
+    // MARK: - VALUE
+    func testBtnConstraints() -> [NSLayoutConstraint]? {
+        
+        guard let testBtn = self.testBtn else { return nil }
+        
+        return [testBtn.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
+                testBtn.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
+                testBtn.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
+                testBtn.heightAnchor.constraint(equalToConstant: 200)]
+    }
+    
+    func sheetControllConstraints() -> [NSLayoutConstraint]? {
+        
+        guard let sheetControll = self.sheetControll else { return nil }
+        
+        return [sheetControll.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+                sheetControll.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+                sheetControll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                sheetControlTopConstraint]
+    }
+    func contentSheetItemViewConstraints() -> [NSLayoutConstraint]? {
+        
+        guard let sheetControll = self.sheetControll else { return nil }
+        guard let contentSheetItemView = self.contentSheetItemView else { return nil }
+        
+        return [contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.dragIndicatorView.bottomAnchor),
+                contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
+                contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
+                contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor)]
     }
 }
 

@@ -50,7 +50,6 @@ public class AMHomeContentSheetItemView: UIScrollView,
     }
     
     func initLayouts(){
-
         // !! 이레 코드 UI디버깅용 !!
         
         // 스택 뷰 제약조건 설정
