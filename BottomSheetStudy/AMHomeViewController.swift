@@ -35,13 +35,13 @@ class AMHomeViewController: UIViewController,
     private var sheetControlTopConstraint: NSLayoutConstraint!
     
     //뷰컨트롤러 view에 붙어있을 버튼
-    var testBtn = UIButton()
+    var testBtn: UIButton?
     
     //바텀시트
-    var sheetControll = AMHomeSheetControl()
+    var sheetControll: AMHomeSheetControl?
     
     //바텀시트 안 내용물(content) 뷰
-    var contentSheetItemView = AMHomeContentSheetItemView()
+    var contentSheetItemView: AMHomeContentSheetItemView?
     
     // Bottom Sheet과 safe Area Top 사이의 최소값을 지정하기 위한 프로퍼티
     // 기본값은 0으로 지정해놓고 viewdidLoad시 초기화 해줌
@@ -66,6 +66,8 @@ class AMHomeViewController: UIViewController,
     func commonInit(){
         initViews()
 
+        registerPanGestures()
+        
         initLayouts()
     }
     
@@ -123,9 +125,56 @@ class AMHomeViewController: UIViewController,
     }
     
     func initViews() {
-        self.view.backgroundColor = .gray
+        
         initTestBtn()
         
+        initSheetControll()
+        
+        initcontentSheetItemView()
+
+        self.view.backgroundColor = .gray
+    }
+    
+    func initTestBtn() {
+        let testBtn = UIButton(type: .system)
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .bold, scale: .large)
+        testBtn.setImage(UIImage(systemName: "plus.circle", withConfiguration: largeConfig), for: .normal)
+        testBtn.translatesAutoresizingMaskIntoConstraints = false
+        testBtn.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        self.testBtn = testBtn
+        
+        self.view.addSubview(testBtn)
+    }
+    
+    func initSheetControll() {
+        let sheetControll = AMHomeSheetControl()
+        sheetControll.translatesAutoresizingMaskIntoConstraints = false
+        
+        //바텀시트 초기 높이값 설정 화면 밖 최하단 밑으로 설정
+        // 후에 디폴트 값인 화면 중단쯤으로 조정될 때 밑에서 부터 올라오는 효과를 부여해줄 수 있음
+        let topConstant = view.safeAreaInsets.bottom + view.safeAreaLayoutGuide.layoutFrame.height
+        sheetControlTopConstraint = sheetControll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topConstant)
+        
+        //시트 확장, 기본, 최소 상태일 때 시트뷰 탑 제약조건 지정해줌
+        sheetPanMinTopConstant = sheetControll.sheetPanMinTopConstant()
+        defaultHeight = sheetControll.defaultHeight()
+        sheetPanMinBottomConstant = sheetControll.sheetPanMinBottomConstant()
+        
+        self.sheetControll = sheetControll
+
+        self.view.addSubview(sheetControll)
+    }
+    
+    func initcontentSheetItemView() {
+        guard let sheetControll = self.sheetControll else { return}
+        let contentSheetItemView = AMHomeContentSheetItemView()
+        
+        self.contentSheetItemView = contentSheetItemView
+        //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
+        sheetControll.addSubview(contentSheetItemView)
+    }
+    
+    func registerPanGestures() {
         // Pan Gesture Recognizer를 view controller의 view에 추가하기 위한 코드
         let handleBarPan = UIPanGestureRecognizer(target: self, action: #selector(handleBarPanned(_:)))
         
@@ -134,6 +183,8 @@ class AMHomeViewController: UIViewController,
         handleBarPan.delaysTouchesBegan = false
         handleBarPan.delaysTouchesEnded = false
         
+        guard let sheetControll = self.sheetControll else { return }
+        guard let contentSheetItemView = self.contentSheetItemView else { return }
         //바텀시트의 헨들바가 있는 영역 dragIndicatorView가 제스처를 통해 시트의 높이를
         //변경할 수 있도록 UIPanGestureRecognizer 붙여준다
         sheetControll.dragIndicatorView.addGestureRecognizer(handleBarPan)
@@ -149,32 +200,6 @@ class AMHomeViewController: UIViewController,
         
         //스크롤 뷰 제스처 인식에 따른 프로세스 처리를 AMHomeViewController에 위임
         contentSheetItemView.delegate = self
-        
-        self.view.addSubview(testBtn)
-        //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
-        sheetControll.addSubview(contentSheetItemView)
-        self.view.addSubview(sheetControll)
-        sheetControll.translatesAutoresizingMaskIntoConstraints = false
-        
-        //바텀시트 초기 높이값 설정 화면 밖 최하단 밑으로 설정
-        // 후에 디폴트 값인 화면 중단쯤으로 조정될 때 밑에서 부터 올라오는 효과를 부여해줄 수 있음
-        let topConstant = view.safeAreaInsets.bottom + view.safeAreaLayoutGuide.layoutFrame.height
-        sheetControlTopConstraint = sheetControll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topConstant)
-        
-        //시트 확장, 기본, 최소 상태일 때 시트뷰 탑 제약조건 지정해줌
-        sheetPanMinTopConstant = sheetControll.sheetPanMinTopConstant()
-        
-        defaultHeight = sheetControll.defaultHeight()
-        
-        sheetPanMinBottomConstant = sheetControll.sheetPanMinBottomConstant()
-    }
-    
-    func initTestBtn(){
-        testBtn = UIButton(type: .system)
-        let largeConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .bold, scale: .large)
-        testBtn.setImage(UIImage(systemName: "plus.circle", withConfiguration: largeConfig), for: .normal)
-        testBtn.translatesAutoresizingMaskIntoConstraints = false
-        testBtn.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
     
     func initLayouts(){
@@ -196,6 +221,9 @@ class AMHomeViewController: UIViewController,
     }
     
     func testBtnConstraints() -> [NSLayoutConstraint]? {
+        
+        guard let testBtn = self.testBtn else { return nil }
+        
         return [testBtn.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
                 testBtn.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
                 testBtn.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
@@ -203,12 +231,19 @@ class AMHomeViewController: UIViewController,
     }
     
     func sheetControllConstraints() -> [NSLayoutConstraint]? {
+        
+        guard let sheetControll = self.sheetControll else { return nil }
+        
         return [sheetControll.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
                 sheetControll.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
                 sheetControll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
                 sheetControlTopConstraint]
     }
     func contentSheetItemViewConstraints() -> [NSLayoutConstraint]? {
+        
+        guard let sheetControll = self.sheetControll else { return nil }
+        guard let contentSheetItemView = self.contentSheetItemView else { return nil }
+        
         return [contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.dragIndicatorView.bottomAnchor),
                 contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
                 contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
@@ -310,6 +345,8 @@ class AMHomeViewController: UIViewController,
     // 오프셋이 0인경우 스크롤뷰를 아래로 내릴 시 시트가 내려가지도록 하기 위해서 구현함
     @objc private func contentViewPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
 
+        guard let contentSheetItemView = self.contentSheetItemView else { return }
+        
         // 스크롤뷰의 오프셋이 0인 상황(컨텐트가 아래로 조금도 내려가있지않는 상태)에서 최대 확장시에만 시트 변화를 야기시키는 viewPanned2매소드를 진행시켜야함
         if (contentSheetItemView.contentOffset.y <= 0 && isExpanded) {
 
