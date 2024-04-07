@@ -38,7 +38,7 @@ class AMHomeViewController: UIViewController,
     var testBtn: UIButton?
     
     //바텀시트
-    var sheetControll: AMHomeSheetControl?
+    var sheetView: AMHomeSheetView?
     
     //바텀시트 안 내용물(content) 뷰
     var contentSheetItemView: AMHomeContentSheetItemView?
@@ -101,29 +101,29 @@ class AMHomeViewController: UIViewController,
     }
     
     func initSheetControll() {
-        let sheetControll = AMHomeSheetControl()
-        sheetControll.translatesAutoresizingMaskIntoConstraints = false
+        let sheetView = AMHomeSheetView()
+        sheetView.translatesAutoresizingMaskIntoConstraints = false
         
         //바텀시트 초기 높이값 설정 화면 밖 최하단 밑으로 설정
         // 후에 디폴트 값인 화면 중단쯤으로 조정될 때 밑에서 부터 올라오는 효과를 부여해줄 수 있음
         let topConstant = view.safeAreaInsets.bottom + view.safeAreaLayoutGuide.layoutFrame.height
-        sheetControlTopConstraint = sheetControll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topConstant)
+        sheetControlTopConstraint = sheetView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topConstant)
         
         //시트 확장, 기본, 최소 상태일 때 시트뷰 탑 제약조건 지정해줌
-        sheetPanMinTopConstant = sheetControll.sheetPanMinTopConstant()
-        defaultHeight = sheetControll.defaultHeight()
-        sheetPanMinBottomConstant = sheetControll.sheetPanMinBottomConstant()
+        sheetPanMinTopConstant = sheetView.sheetPanMinTopConstant()
+        defaultHeight = sheetView.defaultHeight()
+        sheetPanMinBottomConstant = sheetView.sheetPanMinBottomConstant()
         
-        self.view.addSubview(sheetControll)
-        self.sheetControll = sheetControll
+        self.view.addSubview(sheetView)
+        self.sheetView = sheetView
     }
     
     func initcontentSheetItemView() {
-        guard let sheetControll = self.sheetControll else { return}
+        guard let sheetView = self.sheetView else { return}
         let contentSheetItemView = AMHomeContentSheetItemView()
         
         //바텀시트에 채울 내용물들을 담고 있는 스크롤뷰 붙여줌
-        sheetControll.addSubview(contentSheetItemView)
+        sheetView.addSubview(contentSheetItemView)
         self.contentSheetItemView = contentSheetItemView
     }
     
@@ -136,11 +136,11 @@ class AMHomeViewController: UIViewController,
         handleBarPan.delaysTouchesBegan = false
         handleBarPan.delaysTouchesEnded = false
         
-        guard let sheetControll = self.sheetControll else { return }
+        guard let sheetView = self.sheetView else { return }
         guard let contentSheetItemView = self.contentSheetItemView else { return }
         //바텀시트의 헨들바가 있는 영역 dragIndicatorView가 제스처를 통해 시트의 높이를
         //변경할 수 있도록 UIPanGestureRecognizer 붙여준다
-        sheetControll.dragIndicatorView.addGestureRecognizer(handleBarPan)
+        sheetView.dragIndicatorView.addGestureRecognizer(handleBarPan)
         
         //스크롤뷰 오프셋이 0인 경우 아래로 스크롤할 시 시트뷰가 노멀 사이즈로 바뀌도록 하기 위해 컨텐트 시트 아이템뷰에도 제스처 리코그나이저 붙여놓음
         let contentViewPan = UIPanGestureRecognizer(target: self, action: #selector(contentViewPanned(_:)))
@@ -317,13 +317,9 @@ class AMHomeViewController: UIViewController,
 
         guard let contentSheetItemView = self.contentSheetItemView else { return }
         
-        // 스크롤뷰의 오프셋이 0인 상황(컨텐트가 아래로 조금도 내려가있지않는 상태)에서 최대 확장시에만 시트 변화를 야기시키는 viewPanned2매소드를 진행시켜야함
-        if (contentSheetItemView.contentOffset.y <= 0 && isExpanded) {
-
-        }
-        else{
-            // 그게 아니라면 스크롤뷰의 제스처 인식 기능만 활성화하고 시트뷰의 높이를 변화시켜주는 UIPanGestureRecognizer는 무시되어야함
-            return
+        //최대확장 상태가 아니거나 최대확장에서 오프셋이 0이 아닌 경우에는 스크롤뷰는 UIPanGestureRecognizer를 무시하고 기존 ScrollView에 붙어있는 인식기에만 반응해야함
+        if (contentSheetItemView.contentOffset.y > 0 || !isExpanded) {
+                return
         }
         
         let velocity = panGestureRecognizer.velocity(in: view)
@@ -418,21 +414,21 @@ class AMHomeViewController: UIViewController,
     
     func sheetControllConstraints() -> [NSLayoutConstraint]? {
         
-        guard let sheetControll = self.sheetControll else { return nil }
+        guard let sheetView = self.sheetView else { return nil }
         
-        return [sheetControll.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-                sheetControll.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-                sheetControll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        return [sheetView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+                sheetView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+                sheetView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
                 sheetControlTopConstraint]
     }
     func contentSheetItemViewConstraints() -> [NSLayoutConstraint]? {
         
-        guard let sheetControll = self.sheetControll else { return nil }
+        guard let sheetView = self.sheetView else { return nil }
         guard let contentSheetItemView = self.contentSheetItemView else { return nil }
         
-        return [contentSheetItemView.topAnchor.constraint(equalTo: sheetControll.dragIndicatorView.bottomAnchor),
-                contentSheetItemView.leadingAnchor.constraint(equalTo: sheetControll.leadingAnchor),
-                contentSheetItemView.trailingAnchor.constraint(equalTo: sheetControll.trailingAnchor),
+        return [contentSheetItemView.topAnchor.constraint(equalTo: sheetView.dragIndicatorView.bottomAnchor),
+                contentSheetItemView.leadingAnchor.constraint(equalTo: sheetView.leadingAnchor),
+                contentSheetItemView.trailingAnchor.constraint(equalTo: sheetView.trailingAnchor),
                 contentSheetItemView.bottomAnchor.constraint(equalTo: view.bottomAnchor)]
     }
 }

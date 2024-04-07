@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 // 커스텀 바텀시트
-class AMHomeSheetControl: UIView{
+class AMHomeSheetView: UIView{
     
     // 바텀시트를 무조건적으로 올렷다 내렷다 할 수 있는 영역의 뷰
     var dragIndicatorView = UIView()
