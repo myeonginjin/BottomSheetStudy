@@ -24,6 +24,8 @@ class AMHomeViewController: UIViewController,
     
     // 오프셋 0일떄 컨텐츠 스크롤이 아닌 시트가 내려가도록 (제스처가 viewPanned2로 가도록) 확장 여부 저장하는 변수
     var isExpanded = false
+    //버튼 터치인식 디버깅용
+    var toggle: Bool = true
     
     // 현재 바텀 시트의 상태를 추적하기 위한 변수
     public var currentSheetState: SheetViewState = .normal {
@@ -420,8 +422,18 @@ class AMHomeViewController: UIViewController,
             scrollView.bounces = false
     }
     
-    @objc func buttonTapped(){
-        print("test btn tapped")
+    //버튼 터치 인식을 스크롤뷰가 가져가지않는지 확인하는 UI 디버깅용
+    @objc func buttonTapped(_ sender: UIButton) {
+        if toggle {
+            // 작아진 이미지로 변경
+            let smallConfig = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .large)
+            testBtn?.setImage(UIImage(systemName: "plus.circle", withConfiguration: smallConfig), for: .normal)
+        } else {
+            // 커진 이미지로 변경
+            let largeConfig = UIImage.SymbolConfiguration(pointSize: 100, weight: .bold, scale: .large)
+            testBtn?.setImage(UIImage(systemName: "plus.circle", withConfiguration: largeConfig), for: .normal)
+        }
+        toggle = !toggle
     }
     
     // MARK: - VALUE
