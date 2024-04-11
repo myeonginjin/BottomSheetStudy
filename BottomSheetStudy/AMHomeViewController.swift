@@ -250,9 +250,14 @@ class AMHomeViewController: UIViewController,
             
             // 바텀시트의 제스처 이전 탑 제약조건에 드래그 통해 새 좌쵸가 될 지점까지의 거리값을 더했을 때 최대 확장시 top제약조건 보다 크다면 sheetControllTopConstraint의 제약조건에 그 더한값을 지정해줌
             // sheetPanStartingTopConstant의 값은 한번의 제스처 동안에는 그 값이  변하지않음
-            if sheetPanStartingTopConstant + translation.y >
-                sheetPanMinTopConstant {
-                sheetControlTopConstraint.constant = sheetPanStartingTopConstant + translation.y
+            let newConstant = sheetPanStartingTopConstant + translation.y
+            // 시트를 내리는 경우, newConstant가 defaultHeight보다 클 수 없도록 제한
+            // 시트를 올리는 경우, newConstant가 sheetPanMinTopConstant보다 작을 수 없도록 제한
+            if newConstant <= defaultHeight && newConstant >= sheetPanMinTopConstant {
+                sheetControlTopConstraint.constant = newConstant
+            } else if newConstant > defaultHeight {
+                // 시트가 defaultHeight 이상으로 내려가려고 할 때, defaultHeight로 설정
+                sheetControlTopConstraint.constant = defaultHeight
             }
             
             //드래그가 종료됨. 제스처 이후 화면에서 손가락이 떼졌음
