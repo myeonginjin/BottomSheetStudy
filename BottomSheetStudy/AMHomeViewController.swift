@@ -56,7 +56,7 @@ class AMHomeViewController: UIViewController,
     
     // 열린 BottomSheet의 기본 높이를 지정하기 위한 프로퍼티
     // 이 값은 중간 크기 상황의 시트의 화면 상단으로부터의 마진 값을 정해줌
-    var defaultHeight: CGFloat = 0.0
+    var sheetPanDefaultTopConstant: CGFloat = 0.0
     
     // Bottom Sheet과 safe Area Bottom 사이의 최소값을 지정하기 위한 프로퍼티
     // 이 값이 시트 최소 축소 시 화면 하단으로부터의 마진 값을 정해줌
@@ -116,7 +116,7 @@ class AMHomeViewController: UIViewController,
         
         //시트 확장, 기본, 최소 상태일 때 시트뷰 탑 제약조건 지정해줌
         sheetPanMinTopConstant = sheetView.sheetPanMinTopConstant()
-        defaultHeight = sheetView.defaultHeight()
+        sheetPanDefaultTopConstant = sheetView.sheetPanDefaultTopConstant()
         sheetPanMinBottomConstant = sheetView.sheetPanMinBottomConstant()
         
         self.view.addSubview(sheetView)
@@ -189,7 +189,7 @@ class AMHomeViewController: UIViewController,
         if atState == .normal {
             let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanDefaultTopConstant
             
             //확장 상태가 아님
             isExpanded = false
@@ -206,7 +206,7 @@ class AMHomeViewController: UIViewController,
             //최소 확장상태 우선 제외
             let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding: CGFloat = view.safeAreaInsets.bottom
-            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - defaultHeight
+            sheetControlTopConstraint.constant = (safeAreaHeight + bottomPadding) - sheetPanDefaultTopConstant
             
             //최소 확장상태 만들어 주는 로직 (viewPanned메소드에 노말상태에서 아래로 제스처 시 return 시키는 부분도 제거해야 적용됨)
             //            let safeAreaHeight: CGFloat = view.safeAreaLayoutGuide.layoutFrame.height
@@ -258,11 +258,11 @@ class AMHomeViewController: UIViewController,
             let newConstant = sheetPanStartingTopConstant + translation.y
             // 시트를 내리는 경우, newConstant가 defaultHeight보다 클 수 없도록 제한
             // 시트를 올리는 경우, newConstant가 sheetPanMinTopConstant보다 작을 수 없도록 제한
-            if newConstant <= defaultHeight && newConstant >= sheetPanMinTopConstant {
+            if newConstant <= sheetPanDefaultTopConstant && newConstant >= sheetPanMinTopConstant {
                 sheetControlTopConstraint.constant = newConstant
-            } else if newConstant > defaultHeight {
-                // 시트가 defaultHeight 이상으로 내려가려고 할 때, defaultHeight로 설정
-                sheetControlTopConstraint.constant = defaultHeight
+            } else if newConstant > sheetPanDefaultTopConstant {
+                // 시트가 sheetPanDefaultTopConstant 이상으로 내려가려고 할 때, defaultHeight로 설정
+                sheetControlTopConstraint.constant = sheetPanDefaultTopConstant
             }
             
             //드래그가 종료됨. 제스처 이후 화면에서 손가락이 떼졌음
@@ -281,7 +281,7 @@ class AMHomeViewController: UIViewController,
             let bottomPadding = view.safeAreaInsets.bottom
             
             //핸드폰 화면에서 앱의 화면이 차지할 수 있는 전체 영역에서 바텀시트의 화면상단으로부터의 기본 마진값을 뺌
-            let defaultPadding = safeAreaHeight+bottomPadding - defaultHeight
+            let defaultPadding = safeAreaHeight+bottomPadding - sheetPanDefaultTopConstant
             
             //제스처를 통해 새로 지정된 좌표값이 담긴 sheetControlTopConstraint.constant가 바텀시트 최대 확장 시 위치, 기본값 위치, 핸드폰 최하단 위치 이 세 지점에서 어디에 가장 근접한지 구함
             let nearestValue = nearest(to: sheetControlTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
@@ -345,10 +345,10 @@ class AMHomeViewController: UIViewController,
             }
             
             //제스처를 통해 default 크기보다 작은 사이즈로로 만드는 것을 무시
-//            if newConstant <= defaultHeight && newConstant >= sheetPanMinTopConstant {
+//            if newConstant <= sheetPanDefaultTopConstant && newConstant >= sheetPanMinTopConstant {
 //                sheetControlTopConstraint.constant = newConstant
-//            } else if newConstant > defaultHeight {
-//                sheetControlTopConstraint.constant = defaultHeight
+//            } else if newConstant > sheetPanDefaultTopConstant {
+//                sheetControlTopConstraint.constant = sheetPanDefaultTopConstant
 //            }
             
         case .ended:
@@ -360,7 +360,7 @@ class AMHomeViewController: UIViewController,
 //            }
             let safeAreaHeight = view.safeAreaLayoutGuide.layoutFrame.height
             let bottomPadding = view.safeAreaInsets.bottom
-            let defaultPadding = safeAreaHeight+bottomPadding - defaultHeight
+            let defaultPadding = safeAreaHeight+bottomPadding - sheetPanDefaultTopConstant
             let nearestValue = nearest(to: sheetControlTopConstraint.constant, inValues: [sheetPanMinTopConstant, defaultPadding, safeAreaHeight + bottomPadding])
             
             if nearestValue == sheetPanMinTopConstant {

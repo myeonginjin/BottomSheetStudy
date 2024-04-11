@@ -100,7 +100,7 @@ class AMHomeSheetView: UIView {
         return 80.0
     }
     
-    func defaultHeight() -> CGFloat {
+    func sheetPanDefaultTopConstant() -> CGFloat {
         return 450.0
     }
     
