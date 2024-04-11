@@ -324,7 +324,6 @@ class AMHomeViewController: UIViewController,
     // 이 메소느는 UIScrollView인 AMHomeContentSheetItemView에 붙어있는 UIPanGestureRecognizer에 의해 호출됨
     // 오프셋이 0인경우 스크롤뷰를 아래로 내릴 시 시트가 내려가지도록 하기 위해서 구현함
     @objc private func contentViewPanned(_ panGestureRecognizer: UIPanGestureRecognizer) {
-
         guard let contentSheetItemView = self.contentSheetItemView else { return }
         
         //최대확장 상태가 아니거나 최대확장에서 오프셋이 0이 아닌 경우에는 스크롤뷰는 UIPanGestureRecognizer를 무시하고 기존 ScrollView에 붙어있는 인식기에만 반응해야함
@@ -339,9 +338,18 @@ class AMHomeViewController: UIViewController,
         case .began:
             sheetPanStartingTopConstant = sheetControlTopConstraint.constant
         case .changed:
+            
+            //default 크기보다 작은 사이즈로 컨트롤할 수 있도록 허용
             if sheetPanStartingTopConstant + translation.y > sheetPanMinTopConstant {
                 sheetControlTopConstraint.constant = sheetPanStartingTopConstant + translation.y
             }
+            
+            //제스처를 통해 default 크기보다 작은 사이즈로로 만드는 것을 무시
+//            if newConstant <= defaultHeight && newConstant >= sheetPanMinTopConstant {
+//                sheetControlTopConstraint.constant = newConstant
+//            } else if newConstant > defaultHeight {
+//                sheetControlTopConstraint.constant = defaultHeight
+//            }
             
         case .ended:
             
