@@ -26,7 +26,12 @@ class AMHomeViewController: UIViewController,
     var isExpanded = false
     
     // 현재 바텀 시트의 상태를 추적하기 위한 변수
-    var currentSheetState: SheetViewState = .normal
+    public var currentSheetState: SheetViewState = .normal {
+        didSet {
+            // 상태가 변할 때 마다 호출하는 매서드
+            changedSheetState(state: currentSheetState)
+        }
+    }
     
     // 드래그 시작 점에서(화면터치) Bottom Sheet의 현재 top Constraint value를 저장하기 위한 프로퍼티
     private lazy var sheetPanStartingTopConstant: CGFloat = sheetPanMinTopConstant
@@ -378,6 +383,11 @@ class AMHomeViewController: UIViewController,
         guard let nearestVal = values.min(by: { abs(number - $0) < abs(number - $1) })
         else { return number }
         return nearestVal
+    }
+    
+    //시트의 상태가 변경될 때마다 호출되는 메서드
+    func changedSheetState(state: SheetViewState) {
+        print(state)
     }
 
     //contentSheetItem 스크롤 인식하는 메소드 현재 해당 스크롤뷰에는 기본적으로 붙어있는 스크롤뷰 제스처 인식 기능기와(scrollViewDidScroll 메소드 등을 호출하는) UIPanGestureRecognizer의 제스처 인식기가 모두 붙어있다.
